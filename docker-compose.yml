@@ -1,0 +1,42 @@
+version: '3'
+services:
+  # Postgres database
+  pgdb:
+    image: postgres:16-alpine
+    container_name: database
+    volumes:
+      - pgdata:/var/lib/podtgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  # Python server
+  server:
+    build:
+      context: .\server\
+      dockerfile: Dockerfile
+    container_name: backend
+    depends_on:
+      - adminer
+    ports:
+      - 5000:5000
+
+  # React client
+  client:
+    build:
+      context: .\client\
+      dockerfile: Dockerfile
+    container_name: frontend
+    depends_on:
+      - adminer
+    ports:
+      - 3000:3000
+
+volumes:
+  pgdata:
+
